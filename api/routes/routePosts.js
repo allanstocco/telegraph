@@ -3,6 +3,8 @@ const express = require('express');
 const upload = require("../services/uploadImage");
 const pics = upload.single('image')
 
+console.log(pics)
+
 // ROUTER WILL BE ADDED AS MIDDLEWAREE AND WILL TAKE CONTROL OF REQUESTS
 const Routes = express.Router();
 
@@ -53,19 +55,16 @@ Routes.route("/").post(pics, (req, res) => {
 
   const dbConnect = dbo.getDb();
 
-  const pic = req.files.map((file) => {
-    return { url: file.location }
-  })
+  const pic = req.file.location
 
-  console.log(pic.url)
+  console.log(req.file)
 
   const newPost = {
     title: req.body.title,
     name: req.body.name,
     story: req.body.story,
     date: new Date(),
-    url: req.body.url,
-    file: pic.url
+    url: req.body.url
   };
 
   dbConnect
