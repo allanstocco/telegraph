@@ -6,8 +6,9 @@ const Routes = express.Router();
 // GET CONNECTED TO THE DATABASE
 const dbo = require("../db/conn");
 
-
+// SERVICES
 const pic = require('../services/uploadImage')
+const formatDate = require('../services/formatDate')
 
 
 // GET ALL POSTS "JUST TESTING TO SEE ATLAS RESPONSE"
@@ -51,17 +52,20 @@ Routes.route("/:str").get(async (req, res) => {
 // POST NEW TELEGRAPH POST
 Routes.route("/").post(pic.single("image"), (req, res) => {
 
-  const dbConnect = dbo.getDb();
+  let fileLocation;
 
-  console.log(req.file.location)
+
+  if (req.file != undefined) { fileLocation = req.file.location } else { fileLocation = '' }
+
+  const dbConnect = dbo.getDb();
 
   const newPost = {
     title: req.body.title,
     name: req.body.name,
     story: req.body.story,
-    date: new Date(),
+    date: formatDate,
     url: req.body.url,
-    picture: req.file.location
+    picture: fileLocation
   };
 
   dbConnect
