@@ -47,41 +47,35 @@ Routes.route("/:str").get(async (req, res) => {
 
 });
 
-Routes.route('/').post(pic.single("image"), (req, res) => {
-  console.log(req.file)
-  res.status(200).json({ data: req, file })
-})
-
-
-
 
 // POST NEW TELEGRAPH POST
-// Routes.route("/").post(pic.single("image"), (req, res) => {
+Routes.route("/").post(pic.single("image"), (req, res) => {
 
-//   const dbConnect = dbo.getDb();
+  const dbConnect = dbo.getDb();
 
-//   console.log(req.file)
+  console.log(req.file.location)
 
-//   const newPost = {
-//     title: req.body.title,
-//     name: req.body.name,
-//     story: req.body.story,
-//     date: new Date(),
-//     url: req.body.url
-//   };
+  const newPost = {
+    title: req.body.title,
+    name: req.body.name,
+    story: req.body.story,
+    date: new Date(),
+    url: req.body.url,
+    picture: req.file.location
+  };
 
-//   dbConnect
-//     .collection("posts")
-//     .insertOne(newPost, (err, result) => {
-//       try {
-//         console.log(`Added a new data with Title ${result}`);
-//         res.status(204).send();
+  dbConnect
+    .collection("posts")
+    .insertOne(newPost, (err, result) => {
+      try {
+        console.log(`Added a new data with Title ${result}`);
+        res.status(204).send();
 
-//       } catch (err) {
-//         res.status(400).send("Could not insert this data" + err);
-//       }
-//     });
-// });
+      } catch (err) {
+        res.status(400).send("Could not insert this data" + err);
+      }
+    });
+});
 
 
 module.exports = Routes
