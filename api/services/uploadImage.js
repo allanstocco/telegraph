@@ -1,33 +1,48 @@
 const aws = require('aws-sdk');
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-const uuid = require('uuid').v4;
-const path = require('path')
+const path = require('path');
 
 
-
-aws.config.update({
-    secretAccessKey: process.env.S3_ACCESS_SECRET,
+const s3 = new aws.S3({
     accessKeyId: process.env.S3_ACCESS_KEY,
-    region: "us-east-1",
+    secretAccessKey: process.env.S3_ACCESS_SECRET,
+    region: process.env.S3_BUCKET_REGION,
 });
 
-const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 
-const upload = multer({
+function checkFileType(file, cb) {
+
+    const filetypes = /jpeg|jpg|png|gif/;
+
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    const mimetype = filetypes.test(file.mimetype);
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb('JUST IMAGES');
+    }
+}
+
+
+const upload = () => multer({
     storage: multerS3({
-        s3,
+        s3: s3,
         bucket: 'telegraph-pictures',
-        metadata: (req, file, cb) => {
-            cb(null, { fieldName: file.fieldName })
-        },
-        key: (req, file, cb) => {
-            console.log(file)
-            const ext = path.extname(file.originalname)
-            cb(null, `${uuid()}${ext}`);
-        },
+        ContentType: 'image/jpeg',
+        key: function (req, file, cb) {
+            cb(null, path.basename(file.originalname, path.extname(file.originalname)) + '-' + Date.now() + path.extname(file.originalname))
+        }
     }),
+    limits: { fileSize: 2000000 },
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
 });
 
 
-module.exports = upload;
+
+
+module.exports = upload()
+
