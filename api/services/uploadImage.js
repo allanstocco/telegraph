@@ -26,11 +26,11 @@ function checkFileType(file, cb) {
 }
 
 
-const upload = () => multer({
+const upload = (req, res) => multer({
     storage: multerS3({
         s3: s3,
         bucket: 'telegraph-pictures',
-        ContentType: 'image/jpeg',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
         key: function (req, file, cb) {
             cb(null, path.basename(file.originalname, path.extname(file.originalname)) + '-' + Date.now() + path.extname(file.originalname))
         }
