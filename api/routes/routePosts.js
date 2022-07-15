@@ -50,10 +50,11 @@ Routes.route("/:str").get(async (req, res) => {
 
 
 // POST NEW TELEGRAPH POST
-Routes.route("/").post(pic.single("image"), (req, res) => {
+Routes.route("/").post(pic.single("picture"), (req, res) => {
 
   let fileLocation;
 
+  console.log(req.body)
 
   if (req.file != undefined) { fileLocation = req.file.location } else { fileLocation = '' }
 
@@ -72,7 +73,7 @@ Routes.route("/").post(pic.single("image"), (req, res) => {
     .collection("posts")
     .insertOne(newPost, (err, result) => {
       try {
-        console.log(`Added a new data with Title ${result}`);
+        console.log(`Added a new data with Title ${result.title}`);
         res.status(204).send();
 
       } catch (err) {
