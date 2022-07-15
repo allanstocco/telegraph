@@ -1,7 +1,4 @@
-const express = require('express');
-
-const upload = require("../services/uploadImage");
-const pics = upload.single('image')
+const express = require('express')
 
 // ROUTER WILL BE ADDED AS MIDDLEWAREE AND WILL TAKE CONTROL OF REQUESTS
 const Routes = express.Router();
@@ -9,6 +6,9 @@ const Routes = express.Router();
 // GET CONNECTED TO THE DATABASE
 const dbo = require("../db/conn");
 
+// SERVICES
+const pic = require('../services/uploadImage')
+const formatDate = require('../services/formatDate')
 
 
 // GET ALL POSTS "JUST TESTING TO SEE ATLAS RESPONSE"
@@ -48,31 +48,32 @@ Routes.route("/:str").get(async (req, res) => {
 
 });
 
+
 // POST NEW TELEGRAPH POST
-Routes.route("/").post(pics, (req, res) => {
+Routes.route("/").post(pic.single("picture"), (req, res) => {
+
+  let fileLocation;
+
+  console.log(req.body)
+
+  if (req.file != undefined) { fileLocation = req.file.location } else { fileLocation = '' }
 
   const dbConnect = dbo.getDb();
-
-  const pic = req.files.map((file) => {
-    return { url: file.location }
-  })
-
-  console.log(pic.url)
 
   const newPost = {
     title: req.body.title,
     name: req.body.name,
     story: req.body.story,
-    date: new Date(),
+    date: formatDate,
     url: req.body.url,
-    file: pic.url
+    picture: fileLocation
   };
 
   dbConnect
     .collection("posts")
     .insertOne(newPost, (err, result) => {
       try {
-        console.log(`Added a new data with Title ${result}`);
+        console.log(`Added a new data with Title ${result.title}`);
         res.status(204).send();
 
       } catch (err) {
